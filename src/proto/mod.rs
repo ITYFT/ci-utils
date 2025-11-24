@@ -1,7 +1,7 @@
 mod fetch;
 
 use std::path::Path;
-use tonic_build::Builder;
+use tonic_prost_build::Builder;
 
 pub fn sync_and_build_proto_file(url_resource: &str, proto_file_name: &str) {
     let proto_path = fetch::download_from_base_url(url_resource, proto_file_name);
@@ -20,7 +20,14 @@ pub fn sync_and_build_proto_file_from_private_github_repo(
 }
 
 pub fn build_proto_from_file(path: &str) {
-    tonic_build::compile_protos(path).unwrap();
+    let proto_path = Path::new(path);
+    let proto_dir = proto_path
+        .parent()
+        .expect("proto file should reside in a directory");
+
+    tonic_prost_build::configure()
+        .compile_protos(&[proto_path], &[proto_dir])
+        .unwrap();
 }
 
 pub fn sync_and_build_proto_file_with_builder(
@@ -38,7 +45,7 @@ fn compile_with_builder(proto_path: &Path, builder: impl Fn(Builder) -> Builder)
         .parent()
         .expect("proto file should reside in a directory");
 
-    builder(tonic_build::configure())
+    builder(tonic_prost_build::configure())
         .compile_protos(&[proto_path], &[proto_dir])
         .unwrap();
 }

@@ -2,7 +2,7 @@ pub mod js;
 mod net;
 pub mod proto;
 
-pub extern crate tonic_build;
+pub extern crate tonic_prost_build;
 
 pub use net::download_file;
 pub use proto::{
