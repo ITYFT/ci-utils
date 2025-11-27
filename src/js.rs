@@ -5,10 +5,10 @@ pub fn merge_js_files(js_files: &[&str], out_file_name: &str) {
 
     for file_name in js_files {
         if file_name.ends_with(".js") {
-            let content = std::fs::read_to_string(format!("JavaScript/{}", file_name)).unwrap();
+            let content = std::fs::read_to_string(format!("JavaScript/{file_name}")).unwrap();
 
             out_file
-                .write_all(format!("// {}\n", file_name).as_bytes())
+                .write_all(format!("// {file_name}\n").as_bytes())
                 .unwrap();
 
             for line in content.split('\n') {
@@ -17,7 +17,7 @@ pub fn merge_js_files(js_files: &[&str], out_file_name: &str) {
                 }
 
                 out_file
-                    .write_all(format!("{}\n", line).as_bytes())
+                    .write_all(format!("{line}\n").as_bytes())
                     .unwrap();
             }
 

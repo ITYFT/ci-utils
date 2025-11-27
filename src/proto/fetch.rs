@@ -7,12 +7,12 @@ use std::path::{Path, PathBuf};
 const PROTO_DIR: &str = "proto";
 
 pub(super) fn download_from_base_url(base_url: &str, proto_file_name: &str) -> String {
-    let url = format!("{}{}", base_url, proto_file_name);
+    let url = format!("{base_url}{proto_file_name}");
     let response = fetch_with_optional_token(&url);
     ensure_success(&response, &url);
 
     let content = response.text().unwrap();
-    println!("Proto file {} is downloaded", proto_file_name);
+    println!("Proto file {proto_file_name} is downloaded");
 
     write_proto_file(proto_file_name, &content)
 }
@@ -41,7 +41,7 @@ fn fetch_with_optional_token(url: &str) -> Response {
     if let Ok(git_hub_token) = std::env::var("GIT_HUB_TOKEN") {
         Client::new()
             .get(url)
-            .header("Authorization", format!("token {}", git_hub_token))
+            .header("Authorization", format!("token {git_hub_token}"))
             .send()
             .unwrap()
     } else {
@@ -57,7 +57,7 @@ fn fetch_private_github(url: &str) -> Response {
         .get(url)
         .header("Accept", "application/vnd.github+json")
         .header("User-Agent", "RustCiBuilder")
-        .header("Authorization", format!("Bearer {}", git_hub_token))
+        .header("Authorization", format!("Bearer {git_hub_token}"))
         .header("X-GitHub-Api-Version", "2022-11-28")
         .send()
         .unwrap()
@@ -93,8 +93,7 @@ fn write_proto_file(file_name: &str, content: &str) -> String {
     if let Some(parent) = proto_path.parent() {
         fs::create_dir_all(parent).unwrap_or_else(|err| {
             panic!(
-                "Failed to create proto directory {:?}. Err: {}",
-                parent, err
+                "Failed to create proto directory {parent:?}. Err: {err}"
             )
         });
     }
@@ -104,14 +103,14 @@ fn write_proto_file(file_name: &str, content: &str) -> String {
         .truncate(true)
         .create(true)
         .open(&proto_path)
-        .unwrap_or_else(|err| panic!("Failed to open file {:?}. Err: {}", proto_path, err));
+        .unwrap_or_else(|err| panic!("Failed to open file {proto_path:?}. Err: {err}"));
 
     file.write_all(content.as_bytes())
-        .unwrap_or_else(|err| panic!("Failed to write to file {:?}. Err: {}", proto_path, err));
+        .unwrap_or_else(|err| panic!("Failed to write to file {proto_path:?}. Err: {err}"));
     file.flush()
-        .unwrap_or_else(|err| panic!("Failed to flush to file {:?}. Err: {}", proto_path, err));
+        .unwrap_or_else(|err| panic!("Failed to flush to file {proto_path:?}. Err: {err}"));
 
-    println!("Proto file {} is updated", file_name);
+    println!("Proto file {file_name} is updated");
 
     proto_path_to_string(proto_path)
 }

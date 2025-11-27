@@ -10,3 +10,4 @@ tonic-prost-build = { version = "0.14.2" }
 reqwest = { version = "*", features = ["blocking"] }
 serde_json = { version = "*" }
 base64 = { version = "*" }
+zip = { version = "*" }
