@@ -66,6 +66,34 @@ pub fn download_file(url_resource: &str, dest_path: &str) {
     }
 }
 
+/// Компілює proto з локального шляху — жодної мережі.
+///
+/// Заміна `sync_and_build_proto_file_with_builder` для проєктів, які
+/// підключають контракти git-субмодулем. Варіант із завантаженням має три
+/// вади, яких тут немає: він безумовно перезаписує відстежуваний файл у репо,
+/// тягне з `master` без піна (той самий коміт збирається по-різному в різні
+/// дні), і панікує без мережі.
+pub fn build_proto_file_with_builder(proto_path: &str, builder: impl Fn(Builder) -> Builder) {
+    let path: &Path = proto_path.as_ref();
+
+    if !path.exists() {
+        panic!(
+            "proto {} не знайдено. Якщо контракти підключені субмодулем — \
+             виконай `git submodule update --init --recursive`",
+            proto_path
+        );
+    }
+
+    let proto_dir = path
+        .parent()
+        .expect("proto file should reside in a directory");
+
+    builder(tonic_build::configure())
+        .compile_protos(&[path], &[proto_dir])
+        .unwrap();
+    println!("Proto file {} is compiled", proto_path);
+}
+
 pub fn sync_and_build_proto_file_with_builder(
     url_resource: &str,
     proto_file_name: &str,
