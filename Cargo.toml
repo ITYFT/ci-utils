@@ -7,6 +7,9 @@ edition = "2021"
 
 [dependencies]
 tonic-build = { version = "0.13.1", features = ["prost"] }
-reqwest = { version = "*", features = ["blocking"] }
-serde_json = { version = "*" }
-base64 = { version = "*" }
+# Запінено навмисно. З `version = "*"` крейт ламався сам: у lockfile, де вже
+# був base64 0.13, зірочка падала на нього, а код використовує трейт `Engine`
+# з 0.21+. Той самий клас поломки, що зупинив accounts-ql через hmac.
+reqwest = { version = "0.12", features = ["blocking"] }
+serde_json = "1"
+base64 = "0.22"
